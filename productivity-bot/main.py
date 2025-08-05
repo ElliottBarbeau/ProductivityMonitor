@@ -11,10 +11,8 @@ from time import sleep
 '''
 TODO:
 
-Realized pnl by user
-Leverage trading support
-Move to VPS and secure Cassandra
-Reformat to move all spot commands, leverage commands, utils etc into one place
+db table for daily tasks, flag, and days to repeat
+db table for hours tracked on which task, how many hours in each month
 
 '''
 
