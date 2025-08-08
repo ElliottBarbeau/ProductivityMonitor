@@ -50,7 +50,7 @@ class Remind(commands.Cog):
         weekly: !remind weekly mon 7:30am Standup
         """
         freq_norm = freq.strip().lower()
-        user_id = ctx.author.id
+        user_id = str(ctx.author.id)
 
         # Parse args according to frequency
         try:
@@ -105,7 +105,7 @@ class Remind(commands.Cog):
 
     @commands.command(name="remindlist", help="List your reminders")
     async def remindlist(self, ctx: commands.Context):
-        user_id = ctx.author.id
+        user_id = str(ctx.author.id)
         rows = get_all_user_tasks(user_id)
 
         if not rows:
@@ -140,7 +140,7 @@ class Remind(commands.Cog):
         help="Delete a reminder by task_id. Usage: !reminddelete <task_id>"
     )
     async def reminddelete(self, ctx: commands.Context, task_id_str: str):
-        user_id = ctx.author.id
+        user_id = str(ctx.author.id)
 
         try:
             task_id = task_id_str
