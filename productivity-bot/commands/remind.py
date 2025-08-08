@@ -119,7 +119,7 @@ class Remind(commands.Cog):
 
         for r in rows:
             # rows include: task_name, reminder_type, reminder_time, reminder_day_of_week, task_id
-            time_str = r.reminder_time.strftime("%H:%M") if getattr(r, "reminder_time", None) else "N/A"
+            time_str = str(r.reminder_time)[:5] if getattr(r, "reminder_time", None) else "N/A"
             freq = (r.reminder_type or "unknown").capitalize()
             dow = getattr(r, "reminder_day_of_week", None)
             when = f"{dow_to_human(dow)} {time_str}" if freq.lower() == "weekly" else time_str
