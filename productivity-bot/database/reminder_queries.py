@@ -27,7 +27,7 @@ def get_daily_reminders(hour, minute_bottom, minute_top):
     return list(result)
 
 
-def get_daily_reminders(day, hour, minute_bottom, minute_top):
+def get_weekly_reminders(day, hour, minute_bottom, minute_top):
     query = """
                 SELECT * FROM reminders_by_time
                 WHERE reminder_type = 'weekly' AND reminder_day_of_week = day AND reminder_hour = %s and reminder_minute >= %s and reminder_minute < %s
