@@ -12,20 +12,27 @@ def create_active_tasks_table():
         
     session.execute(query)
 
-def get_active_user_task(user_id, task_id):
+def get_active_user_task(user_id):
     query = """
-                SELECT * FROM active_tasks_by_user WHERE user_id = %s AND task_id = %s
+                SELECT * FROM active_tasks_by_user WHERE user_id = %s
             """
     
-    result = session.execute(query, (user_id, task_id))
+    result = session.execute(query, (user_id,))
     row = result.one()
     return row
 
 
-def get_all_user_tasks(user_id):
+def add_active_user_task(user_id, task_id, start_time):
     query = """
-                SELECT * FROM tasks_by_user WHERE user_id = %s
+                INSERT INTO active_tasks_by_user (user_id, task_id, start_time)
+                VALUES (%s, %s, %s);
             """
     
-    result = session.execute(query, (user_id,))
-    return list(result)
+    session.execute(query, (user_id, task_id, start_time))
+
+def delete_active_user_task(user_id):
+    query = """
+                DELETE FROM active_tasks_by_user WHERE user_id = %s
+            """
+    
+    session.execute(query, (user_id,))
