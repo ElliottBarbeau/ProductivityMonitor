@@ -6,7 +6,11 @@ import asyncio
 from pathlib import Path
 from discord.ext import commands
 from dotenv import load_dotenv, find_dotenv
-from time import sleep
+from database.table_queries import table_exists
+from database.reminder_queries import create_reminders_table
+from database.active_task_queries import create_active_tasks_table
+from database.session_queries import create_sessions_table
+from database.task_queries import create_tasks_table
 
 '''
 TODO:
@@ -77,6 +81,15 @@ async def load_cogs():
 # Global events
 @bot.event
 async def on_ready():
+    CASSANDRA_KEYSPACE = os.getenv("CASSANDRA_KEYSPACE")
+    REMIND_TABLE = "reminders_by_time"
+    
+    if not table_exists(CASSANDRA_KEYSPACE, REMIND_TABLE):
+        create_tasks_table()
+        create_active_tasks_table()
+        create_reminders_table()
+        create_sessions_table()
+
     print("All commands:", sorted(bot.all_commands.keys()))
     logging.info(
         "Logged in as %s (ID: %s). Connected to %d guild(s).",

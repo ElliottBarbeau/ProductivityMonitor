@@ -1,6 +1,6 @@
 from .cassandra_client import session
 
-def create_active_tasks_table():
+def create_sessions_table():
     query = """
                 CREATE TABLE sessions_by_user_task (
                     user_id UUID,
