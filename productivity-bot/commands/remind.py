@@ -1,7 +1,6 @@
 # commands/remind.py
 import re
 import discord
-import uuid
 from discord.ext import commands
 from database.task_queries import get_user_task, delete_task_cascade, add_task_indexed, get_all_user_tasks
 
@@ -144,7 +143,7 @@ class Remind(commands.Cog):
         user_id = ctx.author.id
 
         try:
-            task_id = uuid.UUID(task_id_str)
+            task_id = task_id_str
         except ValueError:
             await ctx.send(f"⚠ {ctx.author.mention} invalid task_id. Paste the one shown when you created the reminder.")
             return
