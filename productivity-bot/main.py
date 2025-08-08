@@ -24,6 +24,9 @@ COGS_PATH = BASE_DIR / COGS_PACKAGE
 # Load dotenv for discord token
 load_dotenv(BASE_DIR / ENV_FILE)
 
+print("base dir", BASE_DIR)
+print("env file", ENV_FILE)
+
 TOKEN = os.getenv("DISCORD_TOKEN")
 if TOKEN is None:
     raise RuntimeError("DISCORD_TOKEN not found in env file.")
