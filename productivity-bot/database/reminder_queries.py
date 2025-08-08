@@ -11,7 +11,7 @@ def create_reminders_table():
             reminder_hour TINYINT,
             reminder_day_of_week TINYINT,
             reminder_minute TINYINT,
-            task_id TEXT,
+            task_id UUID,
             user_id TEXT,
             PRIMARY KEY (
                 (reminder_type, reminder_hour),

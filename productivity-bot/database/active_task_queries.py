@@ -4,7 +4,7 @@ def create_active_tasks_table():
     query = """
                 CREATE TABLE IF NOT EXISTS active_tasks_by_user (
                     user_id TEXT,
-                    task_id TEXT,
+                    task_id UUID,
                     start_time TIMESTAMP,
                     PRIMARY KEY (user_id)
                 )

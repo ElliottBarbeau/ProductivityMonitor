@@ -4,7 +4,7 @@ def create_sessions_table():
     query = """
                 CREATE TABLE sessions_by_user_task (
                     user_id TEXT,
-                    task_id TEXT,
+                    task_id UUID,
                     start_time TIMESTAMP,
                     end_time TIMESTAMP,
                     duration_hours DOUBLE,

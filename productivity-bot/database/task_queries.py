@@ -9,7 +9,7 @@ def create_tasks_table():
     query = """
         CREATE TABLE IF NOT EXISTS tasks_by_user (
             user_id TEXT,
-            task_id TEXT,
+            task_id UUID,
             task_name TEXT,
             description TEXT,
             reminder_type TEXT,
