@@ -5,7 +5,7 @@ import asyncio
 
 from pathlib import Path
 from discord.ext import commands
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from time import sleep
 
 '''
@@ -16,13 +16,26 @@ db table for hours tracked on which task, how many hours in each month
 
 '''
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent
 ENV_FILE = ".env"
 COGS_PACKAGE = "commands"
 COGS_PATH = BASE_DIR / COGS_PACKAGE
 
-# Load dotenv for discord token
-load_dotenv(BASE_DIR / ENV_FILE)
+# Load .env from: local dir, parent dir, or search upwards from CWD
+candidates = [BASE_DIR / ENV_FILE, BASE_DIR.parent / ENV_FILE]
+loaded = False
+for p in candidates:
+    if p.is_file():
+        load_dotenv(p)
+        loaded = True
+        break
+
+if not loaded:
+    # fallback: search from current working directory upward
+    dp = find_dotenv(usecwd=True)
+    if dp:
+        load_dotenv(dp)
+        loaded = True
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 if TOKEN is None:
