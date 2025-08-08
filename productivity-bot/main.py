@@ -61,7 +61,7 @@ bot = commands.Bot(
     command_prefix = "$",
     intents = intents,
     help_command = commands.MinimalHelpCommand(),
-    activity = discord.Game(name = "with Python 🐍"),
+    activity = discord.Game(name = "with 🦥 in Costa Rica"),
     case_insensitive=True
 )
 
@@ -83,7 +83,7 @@ async def load_cogs():
 async def on_ready():
     CASSANDRA_KEYSPACE = os.getenv("CASSANDRA_KEYSPACE")
     REMIND_TABLE = "reminders_by_time"
-    
+
     if not table_exists(CASSANDRA_KEYSPACE, REMIND_TABLE):
         create_tasks_table()
         create_active_tasks_table()
