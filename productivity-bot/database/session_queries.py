@@ -3,8 +3,8 @@ from .cassandra_client import session
 def create_sessions_table():
     query = """
                 CREATE TABLE sessions_by_user_task (
-                    user_id UUID,
-                    task_id UUID,
+                    user_id TEXT,
+                    task_id TEXT,
                     start_time TIMESTAMP,
                     end_time TIMESTAMP,
                     duration_hours DOUBLE,

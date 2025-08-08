@@ -3,8 +3,8 @@ from .cassandra_client import session
 def create_active_tasks_table():
     query = """
                 CREATE TABLE IF NOT EXISTS active_tasks_by_user (
-                    user_id UUID,
-                    task_id UUID,
+                    user_id TEXT,
+                    task_id TEXT,
                     start_time TIMESTAMP,
                     PRIMARY KEY (user_id)
                 )

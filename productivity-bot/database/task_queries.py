@@ -8,8 +8,8 @@ from .reminder_queries import add_reminder, DAILY_SENTINEL_DOW
 def create_tasks_table():
     query = """
         CREATE TABLE IF NOT EXISTS tasks_by_user (
-            user_id UUID,
-            task_id UUID,
+            user_id TEXT,
+            task_id TEXT,
             task_name TEXT,
             description TEXT,
             reminder_type TEXT,
