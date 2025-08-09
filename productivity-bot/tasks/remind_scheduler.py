@@ -60,6 +60,7 @@ async def check_reminders(bot):
             del sent_recently[key]
 
     daily_reminders = get_daily_window(current_hour, current_minute, current_minute + 5)
+    print("reminders: ", daily_reminders)
     for reminder in daily_reminders:
         print("info: ", reminder.user_id, reminder.task_id)
         key = (reminder.user_id, reminder.task_id)
