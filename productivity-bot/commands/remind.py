@@ -104,8 +104,8 @@ class Remind(commands.Cog):
         except ValueError as e:
             await ctx.send(f"⚠ {ctx.author.mention} {e}")
 
-    @commands.command(name="remindlist", help="List your reminders")
-    async def remindlist(self, ctx: commands.Context):
+    @commands.command(name="list", help="List your reminders")
+    async def list(self, ctx: commands.Context):
         user_id = str(ctx.author.id)
         rows = get_all_user_tasks(user_id)
 
@@ -137,10 +137,10 @@ class Remind(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(
-        name="reminddelete",
-        help="Delete a reminder by task_id. Usage: !reminddelete <task_id>"
+        name="delete",
+        help="Delete a reminder by task_id. Usage: !delete <task_id>"
     )
-    async def reminddelete(self, ctx: commands.Context, task_id_str: str):
+    async def delete(self, ctx: commands.Context, task_id_str: str):
         user_id = str(ctx.author.id)
 
         try:
