@@ -12,6 +12,7 @@ from database.active_task_queries import create_active_tasks_table
 from database.session_queries import create_sessions_table
 from database.task_queries import create_tasks_table
 from tasks.remind_scheduler import start_monitor
+from tasks.daily_digest import start_daily_digest
 
 '''
 TODO:
@@ -92,6 +93,7 @@ async def on_ready():
         create_sessions_table()
 
     start_monitor(bot)
+    start_daily_digest(bot)
     print("All commands:", sorted(bot.all_commands.keys()))
     logging.info(
         "Logged in as %s (ID: %s). Connected to %d guild(s).",
