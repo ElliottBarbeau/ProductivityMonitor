@@ -8,7 +8,7 @@ from discord.ext import tasks
 from database.cassandra_client import session
 from database.task_queries import get_user_task
 from database.reminder_queries import fetch_due_today_user_task_ids
-from daily_seed import start_seed_task
+from .daily_seed import start_seed_task
 
 # Config / timezone
 TZ = ZoneInfo("America/Toronto")
