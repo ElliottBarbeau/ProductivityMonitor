@@ -1,6 +1,6 @@
 # commands/sessions.py
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from zoneinfo import ZoneInfo
 
@@ -18,6 +18,11 @@ from database.session_queries import add_session_for_task
 EST = ZoneInfo("America/Toronto")
 def now_est():
     return datetime.now(EST)
+
+def as_est(dt: datetime) -> datetime:
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(EST)
 
 def try_parse_uuid(s: str) -> Optional[uuid.UUID]:
     try:
@@ -67,7 +72,7 @@ class Sessions(commands.Cog):
                 return
             else:
                 # Auto-stop previous active task
-                prev_start = current.start_time
+                prev_start = as_est(current.start_time)
                 duration_hours = max((now - prev_start).total_seconds() / 3600.0, 0.0)
                 add_session_for_task(user_id_text, current.task_id, prev_start, now, duration_hours)
                 delete_active_user_task(user_id_text)
@@ -89,7 +94,7 @@ class Sessions(commands.Cog):
             return
 
         now = now_est()
-        start_time = current.start_time
+        start_time = as_est(current.start_time)
         duration_hours = max((now - start_time).total_seconds() / 3600.0, 0.0)
 
         task_row = get_user_task(user_id_text, current.task_id)
