@@ -1,4 +1,3 @@
-# tasks/daily_digest.py
 import os
 import discord
 

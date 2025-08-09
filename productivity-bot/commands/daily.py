@@ -1,5 +1,3 @@
-# commands/daily.py
-import discord
 from discord.ext import commands
 from database.daily_remaining_queries import list_remaining_today
 

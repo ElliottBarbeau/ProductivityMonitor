@@ -1,13 +1,9 @@
-# commands/hours.py
 import uuid
+
 from typing import Optional, Tuple, List
-
-import discord
 from discord.ext import commands
-
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
-
 from database.task_queries import get_all_user_tasks, get_user_task
 from database.session_queries import get_sessions_for_user_task_range
 

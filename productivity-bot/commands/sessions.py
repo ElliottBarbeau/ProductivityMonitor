@@ -1,12 +1,9 @@
-# commands/sessions.py
 import uuid
+
 from datetime import datetime, timezone
 from typing import Optional
 from zoneinfo import ZoneInfo
-
-import discord
 from discord.ext import commands
-
 from database.task_queries import get_all_user_tasks, get_user_task
 from database.active_task_queries import (
     get_active_user_task,

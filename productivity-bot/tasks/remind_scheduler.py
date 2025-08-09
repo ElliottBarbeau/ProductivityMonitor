@@ -1,7 +1,7 @@
 import os
-import discord
 import logging
 import pytz
+
 from pathlib import Path
 from dotenv import load_dotenv, find_dotenv
 from discord.ext import tasks

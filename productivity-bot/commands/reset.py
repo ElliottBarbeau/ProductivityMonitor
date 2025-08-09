@@ -1,4 +1,5 @@
 import logging
+
 from discord.ext import commands
 from database.cassandra_client import session
 
