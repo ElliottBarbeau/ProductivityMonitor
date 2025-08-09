@@ -13,7 +13,8 @@ class AdminCommands(commands.Cog):
             "active_tasks_by_user",
             "reminders_by_time",
             "sessions_by_user_task",
-            "tasks_by_user"
+            "tasks_by_user",
+            "daily_remaining_by_user"
         ]
 
         try:

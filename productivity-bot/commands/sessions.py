@@ -14,6 +14,7 @@ from database.active_task_queries import (
     delete_active_user_task,
 )
 from database.session_queries import add_session_for_task
+from database.daily_remaining_queries import remove_from_today
 
 EST = ZoneInfo("America/Toronto")
 def now_est():
@@ -78,6 +79,7 @@ class Sessions(commands.Cog):
                 delete_active_user_task(user_id_text)
 
         # Start new active session
+        remove_from_today(user_id_text, tid)
         add_active_user_task(user_id_text, tid, now)
         await ctx.send(f"▶️ {ctx.author.mention} started **{task_row.task_name}** at {now.strftime('%H:%M %p')} EST.")
 
@@ -99,7 +101,6 @@ class Sessions(commands.Cog):
 
         task_row = get_user_task(user_id_text, current.task_id)
         task_name = getattr(task_row, "task_name", str(current.task_id))
-
         add_session_for_task(user_id_text, current.task_id, start_time, now, duration_hours)
         delete_active_user_task(user_id_text)
 

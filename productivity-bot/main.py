@@ -11,6 +11,7 @@ from database.reminder_queries import create_reminders_table
 from database.active_task_queries import create_active_tasks_table
 from database.session_queries import create_sessions_table
 from database.task_queries import create_tasks_table
+from database.daily_remaining_queries import create_daily_remaining_table
 from tasks.remind_scheduler import start_monitor
 from tasks.daily_digest import start_daily_digest
 
@@ -91,6 +92,7 @@ async def on_ready():
         create_active_tasks_table()
         create_reminders_table()
         create_sessions_table()
+        create_daily_remaining_table()
 
     start_daily_digest(bot)
     start_monitor(bot)

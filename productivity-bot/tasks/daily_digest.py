@@ -1,16 +1,14 @@
 # tasks/daily_digest.py
 import os
-from collections import defaultdict
+import discord
+
 from datetime import datetime, time as dtime
 from zoneinfo import ZoneInfo
-
-import discord
 from discord.ext import tasks
-from cassandra.query import SimpleStatement
-
 from database.cassandra_client import session
 from database.task_queries import get_user_task
 from database.reminder_queries import fetch_due_today_user_task_ids
+from daily_seed import start_seed_task
 
 # Config / timezone
 TZ = ZoneInfo("America/Toronto")
@@ -102,6 +100,7 @@ async def daily_task_digest():
             await send_user_digest(bot, user_id, task_rows)
 
 def start_daily_digest(bot: discord.Client | discord.ext.commands.Bot):
+    start_seed_task()
     daily_task_digest.bot = bot
     daily_task_digest.start()
     print("Daily digest scheduled (1pm America/Toronto).")
