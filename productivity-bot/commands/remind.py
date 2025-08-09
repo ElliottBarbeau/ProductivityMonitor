@@ -4,6 +4,7 @@ import uuid
 
 from discord.ext import commands
 from database.task_queries import get_user_task, delete_task_cascade, add_task_indexed, get_all_user_tasks
+from collections import defaultdict
 
 DAY_MAP = {
     "sun": 0, "sunday": 0,
@@ -14,6 +15,65 @@ DAY_MAP = {
     "fri": 5, "friday": 5,
     "sat": 6, "saturday": 6,
 }
+
+# Add near your DAY_MAP / helpers
+DAY_ORDER = ["sun","mon","tue","wed","thu","fri","sat"]
+DAY_ABBR  = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+
+def hhmm(reminder_time) -> str:
+    # Works for cassandra.util.Time and datetime.time
+    return str(reminder_time)[:5] if reminder_time else "N/A"
+
+def normalize_day_token(tok: str) -> str | None:
+    t = tok.strip().lower()
+    if not t:
+        return None
+    
+    for k in DAY_MAP.keys():
+        if t == k:
+            return k
+    return None
+
+def expand_day_range(a: str, b: str) -> list[int]:
+    """Expand ranges like mon-fri (wrap not supported: sun-wed works; wed-mon is treated as wed..sun)."""
+    ai = DAY_ORDER.index(a)
+    bi = DAY_ORDER.index(b)
+    if ai <= bi:
+        seq = DAY_ORDER[ai:bi+1]
+    else:
+        seq = DAY_ORDER[ai:] + DAY_ORDER[:bi+1]
+    return [DAY_MAP[s] for s in seq]
+
+def parse_multi_days(s: str) -> list[int]:
+    """
+    Parse 'mon,wed,fri' or 'mon wed' or 'mon-wed, fri' into list of DOW ints [0..6] (Sun=0).
+    """
+    parts = []
+    for chunk in s.replace(",", " ").split():
+        parts.append(chunk)
+
+    dows: set[int] = set()
+    i = 0
+    while i < len(parts):
+        tok = parts[i]
+        if "-" in tok:
+            a_raw, b_raw = tok.split("-", 1)
+            a = normalize_day_token(a_raw)
+            b = normalize_day_token(b_raw)
+            if a is None or b is None:
+                raise ValueError(f"Invalid day range: {tok}")
+            for d in expand_day_range(a, b):
+                dows.add(d)
+            i += 1
+        else:
+            k = normalize_day_token(tok)
+            if k is None:
+                raise ValueError(f"Invalid day: {tok}")
+            dows.add(DAY_MAP[k])
+            i += 1
+
+    return sorted(dows)
+
 
 def parse_time_str(time_str: str) -> tuple[int, int]:
     s = time_str.strip().lower()
@@ -53,17 +113,14 @@ class Remind(commands.Cog):
         freq_norm = freq.strip().lower()
         user_id = str(ctx.author.id)
 
-        # Parse args according to frequency
         try:
             if freq_norm == "daily":
                 if task_name is None:
-                    # user used: !remind daily <time> <task>
                     time_str = arg2
                     task = (arg3 or "").strip()
                     if not task:
                         raise ValueError("Missing task name.")
                 else:
-                    # user used 4+ args; arg2=time, task_name provided by discord parser
                     time_str = arg2
                     task = task_name
                 hour, minute = parse_time_str(time_str)
@@ -79,26 +136,38 @@ class Remind(commands.Cog):
                 await ctx.send(f"✅ {ctx.author.mention} daily reminder set for **{task}** at **{arg2}** (task_id `{task_id}`)")
 
             elif freq_norm == "weekly":
-                # Expect: !remind weekly <day> <time> <task...>
                 if arg3 is None or task_name is None:
-                    raise ValueError("Usage: !remind weekly <day> <time> <task name>")
-                day_key = arg2.strip().lower()
-                if day_key not in DAY_MAP:
-                    raise ValueError("Invalid day. Try mon, tue, wed, thu, fri, sat, sun.")
-                dow = DAY_MAP[day_key]
+                    raise ValueError("Usage: !remind weekly <days> <time> <task name> (e.g., mon,wed or mon-fri)")
+                day_expr = arg2.strip()
+                try:
+                    dows = parse_multi_days(day_expr)
+                except ValueError as e:
+                    raise ValueError(str(e) + "  Try: mon,wed or mon-fri")
+
+                if not dows:
+                    raise ValueError("No valid days provided. Try: mon,wed or mon-fri")
+
                 hour, minute = parse_time_str(arg3)
                 task = task_name
-                task_id = add_task_indexed(
-                    user_id=user_id,
-                    task_name=task,
-                    description=None,
-                    reminder_type="weekly",
-                    reminder_hour=hour,
-                    reminder_minute=minute,
-                    day_of_week=dow,
+
+                created_ids = []
+                for dow in dows:
+                    tid = add_task_indexed(
+                        user_id=user_id,
+                        task_name=task,
+                        description=None,
+                        reminder_type="weekly",
+                        reminder_hour=hour,
+                        reminder_minute=minute,
+                        day_of_week=dow,
+                    )
+                    created_ids.append(str(tid))
+
+                days_human = ", ".join(DAY_ABBR[d] for d in dows)
+                await ctx.send(
+                    f"✅ {ctx.author.mention} weekly reminders set for **{task}** on **{days_human} {arg3}**\n"
+                    f"🆔 " + ", ".join(f"`{tid}`" for tid in created_ids)
                 )
-                human_day = dow_to_human(dow)
-                await ctx.send(f"✅ {ctx.author.mention} weekly reminder set for **{task}** on **{human_day} {arg3}** (task_id `{task_id}`)")
             else:
                 raise ValueError("Frequency must be 'daily' or 'weekly'.")
         except ValueError as e:
@@ -113,24 +182,47 @@ class Remind(commands.Cog):
             await ctx.send(f"✅ {ctx.author.mention} you have no active reminders.")
             return
 
+        groups = defaultdict(lambda: {"days": set(), "task_ids": [], "time": "N/A", "type": "Unknown"})
+        for r in rows:
+            time_str = hhmm(getattr(r, "reminder_time", None))
+            rtype = (r.reminder_type or "unknown").lower()
+            key = (r.task_name, time_str, rtype)
+            g = groups[key]
+            g["time"] = time_str
+            g["type"] = rtype
+            g["task_ids"].append(str(r.task_id))
+            if rtype == "weekly":
+                dow = getattr(r, "reminder_day_of_week", None)
+                if isinstance(dow, int) and 0 <= dow <= 6:
+                    g["days"].add(dow)
+
         embed = discord.Embed(
             title=f"{ctx.author.display_name}'s Reminders",
-            description="Your scheduled pings",
+            description="(Weekly tasks on multiple days are collapsed)",
         )
 
-        for r in rows:
-            # rows include: task_name, reminder_type, reminder_time, reminder_day_of_week, task_id
-            time_str = str(r.reminder_time)[:5] if getattr(r, "reminder_time", None) else "N/A"
-            freq = (r.reminder_type or "unknown").capitalize()
-            dow = getattr(r, "reminder_day_of_week", None)
-            when = f"{dow_to_human(dow)} {time_str}" if freq.lower() == "weekly" else time_str
+        def sort_key(item):
+            (name, time_str, rtype) = item[0]
+            try:
+                h, m = map(int, time_str.split(":"))
+            except Exception:
+                h, m = (99, 99)
+            return (0 if rtype == "daily" else 1, h, m, name.lower())
+
+        for (name, time_str, rtype), info in sorted(groups.items(), key=sort_key):
+            if rtype == "weekly" and info["days"]:
+                days_human = ", ".join(DAY_ABBR[d] for d in sorted(info["days"]))
+                when = f"{days_human} {time_str}"
+                freq_label = "Weekly"
+            else:
+                when = time_str
+                freq_label = "Daily" if rtype == "daily" else rtype.capitalize()
+
+            ids_str = ", ".join(f"`{tid}`" for tid in info["task_ids"])
 
             embed.add_field(
-                name=f"{r.task_name}",
-                value=(
-                    f"⏰ {when} — {freq}\n"
-                    f"🆔 `{r.task_id}`"
-                ),
+                name=name,
+                value=f"⏰ {when} — {freq_label}\n🆔 {ids_str}",
                 inline=False
             )
 
