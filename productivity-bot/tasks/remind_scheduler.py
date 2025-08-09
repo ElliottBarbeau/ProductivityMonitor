@@ -61,11 +61,14 @@ async def check_reminders(bot):
 
     daily_reminders = get_daily_window(current_hour, current_minute, current_minute + 5)
     for reminder in daily_reminders:
+        print("info: ", reminder.user_id, reminder.task_id)
         key = (reminder.user_id, reminder.task_id)
         if key in sent_recently:
+            print("skipping current reminder")
             continue
         task = get_user_task(reminder.user_id, reminder.task_id)
         if task:
+            print("pinging user")
             await ping_user(bot, reminder.user_id, task.task_name)
             sent_recently[key] = now
 
