@@ -27,16 +27,16 @@ def window_bounds_utc(scope):
     if label == "all":
         return None, None, label
 
-    now_est = now_est()
+    _now_est = now_est()
     if label == "week":
-        start_est = now_est - timedelta(days=7)
+        start_est = _now_est - timedelta(days=7)
     elif label == "month":
-        start_est = now_est - timedelta(days=30)
+        start_est = _now_est - timedelta(days=30)
     else:
-        start_est = now_est - timedelta(days=365)
+        start_est = _now_est - timedelta(days=365)
 
     start_utc = start_est.astimezone(timezone.utc).replace(tzinfo=None)
-    end_utc = now_est.astimezone(timezone.utc).replace(tzinfo=None)
+    end_utc = _now_est.astimezone(timezone.utc).replace(tzinfo=None)
     return start_utc, end_utc, label
 
 def try_parse_uuid(s: str) -> Optional[uuid.UUID]:
