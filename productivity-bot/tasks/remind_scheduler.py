@@ -33,18 +33,21 @@ DEDUP_WINDOW_MINUTES = 15
 LOCAL_TZ = pytz.timezone("America/Toronto")
 
 async def ping_user(bot, user_id, task_name):
-    user = await bot.fetch_user(user_id)
+    user = await bot.fetch_user(int(user_id))
     if not user:
         return
 
     channel = bot.get_channel(CHANNEL_ID)
+
+    content = f"{user.mention} ⏰ It's time for your task: **{task_name}**!"
+
     embed = discord.Embed(
-        title="⏰ Reminder",
-        description=f"Hey {user.mention}, it's time for your task: **{task_name}**!",
+        title="Reminder",
+        description=f"Task: **{task_name}**",
         color=discord.Color.green()
     )
 
-    await channel.send(embed=embed)
+    await channel.send(content=content, embed=embed)
 
 async def check_reminders(bot):
     logging.info("Running reminder scheduler")
