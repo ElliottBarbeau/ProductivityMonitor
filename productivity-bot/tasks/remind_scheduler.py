@@ -41,13 +41,7 @@ async def ping_user(bot, user_id, task_name):
 
     content = f"{user.mention} ⏰ It's time for your task: **{task_name}**!"
 
-    embed = discord.Embed(
-        title="Reminder",
-        description=f"Task: **{task_name}**",
-        color=discord.Color.green()
-    )
-
-    await channel.send(content=content, embed=embed)
+    await channel.send(content=content)
 
 async def check_reminders(bot):
     logging.info("Running reminder scheduler")
