@@ -9,7 +9,7 @@ class Seed(commands.Cog):
 
     @commands.command(name="seed")
     async def seed(self, ctx):
-        seed_daily_lists()
+        await seed_daily_lists()
         await ctx.send("Daily tasks seeded")
 
 
