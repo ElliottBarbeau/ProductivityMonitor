@@ -59,7 +59,7 @@ intents.message_content = True
 intents.guilds = True
 
 bot = commands.Bot(
-    command_prefix = "$",
+    command_prefix = "!",
     intents = intents,
     help_command = commands.MinimalHelpCommand(),
     activity = discord.Game(name = "with 🦥 in Costa Rica"),
