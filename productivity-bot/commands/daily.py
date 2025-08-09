@@ -13,7 +13,7 @@ class Daily(commands.Cog):
         user_id = str(ctx.author.id)
         rows = list_remaining_today(user_id)
         if not rows:
-            await ctx.send(f"✅ {ctx.author.mention} nothing left for today. Nice!")
+            await ctx.send(f"{ctx.author.mention} you completed all of your tasks for today. Nice job!")
             return
 
         # Keep it simple, copy-paste friendly (includes task_id)
