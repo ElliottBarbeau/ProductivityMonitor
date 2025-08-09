@@ -1,9 +1,12 @@
 # database/task_queries.py
 import uuid
-from datetime import time
+import pytz
+from datetime import time, datetime
 from cassandra.query import BatchStatement, SimpleStatement
 from .cassandra_client import session
 from .reminder_queries import add_reminder, DAILY_SENTINEL_DOW
+
+LOCAL_TZ = pytz.timezone("America/Toronto")
 
 def create_tasks_table():
     query = """
@@ -23,6 +26,9 @@ def create_tasks_table():
 
 def add_task_indexed(user_id, task_name, description, reminder_type, reminder_hour, reminder_minute, day_of_week):
     task_id = uuid.uuid4()
+
+    # Normalize to local timezone (if user gave local time, store as that local time)
+    now_local = datetime.now(LOCAL_TZ)
     rtime = time(hour=reminder_hour, minute=reminder_minute)
     dow = DAILY_SENTINEL_DOW if (day_of_week is None) else int(day_of_week)
 
@@ -33,14 +39,14 @@ def add_task_indexed(user_id, task_name, description, reminder_type, reminder_ho
         ) VALUES (%s, %s, %s, %s, %s, %s, %s, toTimestamp(now()))
     """)
 
-    batch = BatchStatement()
-    batch.add(insert_task, (user_id, task_id, task_name, description, reminder_type, rtime, dow))
-
     insert_index = SimpleStatement("""
         INSERT INTO reminders_by_time (
             reminder_type, reminder_hour, reminder_day_of_week, reminder_minute, task_id, user_id
         ) VALUES (%s, %s, %s, %s, %s, %s)
     """)
+
+    batch = BatchStatement()
+    batch.add(insert_task, (user_id, task_id, task_name, description, reminder_type, rtime, dow))
     batch.add(insert_index, (reminder_type, reminder_hour, dow, reminder_minute, task_id, user_id))
 
     session.execute(batch)

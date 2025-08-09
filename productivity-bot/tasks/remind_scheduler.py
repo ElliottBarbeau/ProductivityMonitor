@@ -1,6 +1,7 @@
 import os
 import discord
 import logging
+import pytz
 from pathlib import Path
 from dotenv import load_dotenv, find_dotenv
 from discord.ext import tasks
@@ -27,11 +28,9 @@ if not loaded:
 
 CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
 
-# Track sent reminders in memory for de-duplication
-sent_recently = {}  # {(user_id, task_id): last_sent_datetime}
-
-# How long to keep entries in sent_recently before allowing another ping
+sent_recently = {}
 DEDUP_WINDOW_MINUTES = 15
+LOCAL_TZ = pytz.timezone("America/Toronto")
 
 async def ping_user(bot, user_id, task_name):
     user = await bot.fetch_user(user_id)
@@ -49,7 +48,7 @@ async def ping_user(bot, user_id, task_name):
 
 async def check_reminders(bot):
     logging.info("Running reminder scheduler")
-    now = datetime.now()
+    now = datetime.now(LOCAL_TZ)
     current_hour = now.hour
     current_minute = now.minute
     current_day_of_week = (now.weekday() + 1) % 7
