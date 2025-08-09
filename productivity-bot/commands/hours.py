@@ -9,7 +9,7 @@ from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 from database.task_queries import get_all_user_tasks, get_user_task
-from database.sessions_queries import get_sessions_for_user_task_range
+from database.session_queries import get_sessions_for_user_task_range
 
 # Bot-wide timezone (Eastern with DST)
 EST = ZoneInfo("America/Toronto")
