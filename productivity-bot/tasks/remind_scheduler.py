@@ -1,8 +1,9 @@
 import os
+import discord
+import logging
 from pathlib import Path
 from dotenv import load_dotenv, find_dotenv
 from discord.ext import tasks
-import discord
 from datetime import datetime, timedelta
 from database.reminder_queries import get_daily_window, get_weekly_window
 from database.task_queries import get_user_task
@@ -47,6 +48,7 @@ async def ping_user(bot, user_id, task_name):
     await channel.send(embed=embed)
 
 async def check_reminders(bot):
+    logging.info("Running reminder scheduler")
     now = datetime.now()
     current_hour = now.hour
     current_minute = now.minute
