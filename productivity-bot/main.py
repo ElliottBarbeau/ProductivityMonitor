@@ -92,8 +92,8 @@ async def on_ready():
         create_reminders_table()
         create_sessions_table()
 
-    start_monitor(bot)
     start_daily_digest(bot)
+    start_monitor(bot)
     print("All commands:", sorted(bot.all_commands.keys()))
     logging.info(
         "Logged in as %s (ID: %s). Connected to %d guild(s).",
