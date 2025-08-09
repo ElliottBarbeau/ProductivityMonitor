@@ -100,7 +100,7 @@ async def daily_task_digest():
             await send_user_digest(bot, user_id, task_rows)
 
 def start_daily_digest(bot: discord.Client | discord.ext.commands.Bot):
-    start_seed_task()
+    start_seed_task(bot)
     daily_task_digest.bot = bot
     daily_task_digest.start()
     print("Daily digest scheduled (1pm America/Toronto).")
