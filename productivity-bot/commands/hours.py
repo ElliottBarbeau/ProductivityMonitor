@@ -50,7 +50,7 @@ def resolve_task_for_user(user_id_text: str, task_ref: str):
     if tid:
         return get_user_task(user_id_text, tid)
     for row in get_all_user_tasks(user_id_text):
-        if row.task_name == task_ref.strip():
+        if row.task_name and row.task_name.lower() == task_ref.strip().lower():
             return row
     return None
 
