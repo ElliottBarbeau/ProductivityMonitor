@@ -57,10 +57,10 @@ class SessionsList(commands.Cog):
             await ctx.send(f"⚠ {ctx.author.mention} period must be '24h' or 'week'.")
             return
 
-        now_est = now_est()
-        start_est = now_est - (timedelta(hours=24) if period_norm == "24h" else timedelta(days=7))
+        _now_est = now_est()
+        start_est = _now_est - (timedelta(hours=24) if period_norm == "24h" else timedelta(days=7))
         start_utc = start_est.astimezone(timezone.utc).replace(tzinfo=None)
-        end_utc   = now_est.astimezone(timezone.utc).replace(tzinfo=None)
+        end_utc   = _now_est.astimezone(timezone.utc).replace(tzinfo=None)
 
         sessions_data: List[tuple[str, datetime, datetime, float]] = []
         total_hours = 0.0
