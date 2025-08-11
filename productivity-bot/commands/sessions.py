@@ -60,7 +60,6 @@ class Sessions(commands.Cog):
                 return
             tid = task_row.task_id
 
-        # Check if user already has an active task
         current = get_active_user_task(user_id_text)
         now = now_est()
 
@@ -69,14 +68,12 @@ class Sessions(commands.Cog):
                 await ctx.send(f"✅ {ctx.author.mention} you're already working on **{task_row.task_name}** (started at {current.start_time}).")
                 return
             else:
-                # Auto-stop previous active task
                 prev_start = as_est(current.start_time)
                 duration_hours = max((now - prev_start).total_seconds() / 3600.0, 0.0)
                 add_session_for_task(user_id_text, current.task_id, prev_start, now, duration_hours)
                 delete_active_user_task(user_id_text)
 
-        # Start new active session
-        remove_from_today(user_id_text, tid)
+        remove_from_today(user_id_text, task_row.task_name)
         add_active_user_task(user_id_text, tid, now)
         await ctx.send(f"▶️ {ctx.author.mention} started **{task_row.task_name}** at {now.strftime('%H:%M %p')} EST.")
 

@@ -16,10 +16,9 @@ class Daily(commands.Cog):
             await ctx.send(f"{ctx.author.mention} you completed all of your tasks for today. Nice job!")
             return
 
-        # Keep it simple, copy-paste friendly (includes task_id)
         lines = [f"📝 {ctx.author.mention} today's remaining tasks:"]
         for r in rows:
-            lines.append(f"• **{r.task_name}** — `task_id: {r.task_id}`")
+            lines.append(f"• **{r.task_name}**")
         await ctx.send("\n".join(lines))
 
 async def setup(bot: commands.Bot):

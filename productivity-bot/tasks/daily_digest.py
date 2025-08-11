@@ -9,26 +9,20 @@ from database.task_queries import get_user_task
 from database.reminder_queries import fetch_due_today_user_task_ids
 from .daily_seed import start_seed_task
 
-# Config / timezone
 TZ = ZoneInfo("America/Toronto")
 CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
-DAILY_SENTINEL_DOW = -1  # as per your schema: daily = -1
+DAILY_SENTINEL_DOW = -1
 
 def today_dow_sunday0(now_local: datetime) -> int:
     return (now_local.weekday() + 1) % 7
 
 async def send_user_digest(bot: discord.Client, user_id: str, task_rows: list[object]):
-    """
-    Send an embed digest for a single user listing today's tasks.
-    task_rows are rows from tasks_by_user (we fetch names & times there).
-    """
     if not CHANNEL_ID:
         return
     channel = bot.get_channel(CHANNEL_ID)
     if not channel:
         return
 
-    # Build embed
     today_str = datetime.now(TZ).strftime("%Y-%m-%d")
     embed = discord.Embed(
         title=f"Today's Tasks — {today_str}",
@@ -36,9 +30,7 @@ async def send_user_digest(bot: discord.Client, user_id: str, task_rows: list[ob
         color=discord.Color.blurple(),
     )
 
-    # Add task fields (time from tasks_by_user.reminder_time)
     for r in task_rows:
-        # reminder_time is CQL 'time' (cassandra.util.Time) or datetime.time -> show HH:MM
         time_str = "N/A"
         if getattr(r, "reminder_time", None) is not None:
             time_str = str(r.reminder_time)[:5]  # "HH:MM"
@@ -49,7 +41,6 @@ async def send_user_digest(bot: discord.Client, user_id: str, task_rows: list[ob
             inline=False
         )
 
-    # Mention in plain content so it notifies the user
     try:
         user = await bot.fetch_user(int(user_id))
         mention = user.mention if user else f"<@{user_id}>"
@@ -83,8 +74,8 @@ async def gather_task_rows_for_user(user_id: str, task_ids: set) -> list[object]
     out.sort(key=_key)
     return out
 
-# Schedule at 1pm
-@tasks.loop(time=dtime(hour=13, tzinfo=TZ))
+# Schedule at 6am
+@tasks.loop(time=dtime(hour=6, tzinfo=TZ))
 async def daily_task_digest():
     bot = daily_task_digest.bot
     now_local = datetime.now(TZ)
