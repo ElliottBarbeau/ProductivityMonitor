@@ -85,13 +85,9 @@ async def load_cogs():
 @bot.event
 async def on_ready():
     CASSANDRA_KEYSPACE = os.getenv("CASSANDRA_KEYSPACE")
-    REMIND_TABLE = "reminders_by_time"
+    REMIND_TABLE = "daily_remaining_by_user"
 
     if not table_exists(CASSANDRA_KEYSPACE, REMIND_TABLE):
-        create_tasks_table()
-        create_active_tasks_table()
-        create_reminders_table()
-        create_sessions_table()
         create_daily_remaining_table()
 
     start_daily_digest(bot)
